@@ -1,0 +1,240 @@
+{
+  "subscriptions": [
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "IT/OT Manager salary + benefits",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "OT Engineer salary + benefits",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "IT Systems Administrator salary",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "Help Desk Technician salary",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "Training budget \u00e2\u20ac\u201c GxP, SCADA, cloud",
+      "capex_opex": "opex",
+      "is_recurring": 0
+    },
+    {
+      "department_id": 1,
+      "category_id": 4,
+      "vendor_id": 4,
+      "subscription_id": null,
+      "description": "AWS \u00e2\u20ac\u201c validation workloads + S3 backup",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 4,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "Azure \u00e2\u20ac\u201c dev/test and M365 compute",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 4,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "On-premise data center \u00e2\u20ac\u201c power + cooling",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 5,
+      "vendor_id": null,
+      "subscription_id": 5,
+      "description": "Claroty xDome OT Security",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 5,
+      "vendor_id": null,
+      "subscription_id": 11,
+      "description": "Tenable OT Security",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 5,
+      "vendor_id": null,
+      "subscription_id": 12,
+      "description": "Splunk Enterprise SIEM",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 5,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "Annual cybersecurity audit",
+      "capex_opex": "opex",
+      "is_recurring": 0
+    },
+    {
+      "department_id": 1,
+      "category_id": 5,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "GxP compliance assessments",
+      "capex_opex": "opex",
+      "is_recurring": 0
+    },
+    {
+      "department_id": 1,
+      "category_id": 6,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "MSP \u00e2\u20ac\u201c Tier 1/2 help desk coverage",
+      "capex_opex": "opex",
+      "is_recurring": 1
+    },
+    {
+      "department_id": 1,
+      "category_id": 6,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "OT integration consultant \u00e2\u20ac\u201c project-based",
+      "capex_opex": "opex",
+      "is_recurring": 0
+    },
+    {
+      "department_id": 1,
+      "category_id": 6,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "External IT audit and pen testing",
+      "capex_opex": "opex",
+      "is_recurring": 0
+    }
+  ],
+  "vendors": [
+    {
+      "id": 1,
+      "name": "Dell Technologies",
+      "website": "dell.com"
+    },
+    {
+      "id": 2,
+      "name": "Microsoft",
+      "website": "microsoft.com"
+    },
+    {
+      "id": 3,
+      "name": "Cisco Systems",
+      "website": "cisco.com"
+    },
+    {
+      "id": 4,
+      "name": "AWS",
+      "website": "aws.amazon.com"
+    },
+    {
+      "id": 5,
+      "name": "CrowdStrike",
+      "website": "crowdstrike.com"
+    },
+    {
+      "id": 6,
+      "name": "Claroty",
+      "website": "claroty.com"
+    },
+    {
+      "id": 7,
+      "name": "Rockwell Automation",
+      "website": "rockwellautomation.com"
+    },
+    {
+      "id": 8,
+      "name": "Tenable",
+      "website": "tenable.com"
+    },
+    {
+      "id": 9,
+      "name": "ServiceNow",
+      "website": "servicenow.com"
+    },
+    {
+      "id": 10,
+      "name": "Veeam",
+      "website": "veeam.com"
+    },
+    {
+      "id": 11,
+      "name": "SolarWinds",
+      "website": "solarwinds.com"
+    },
+    {
+      "id": 12,
+      "name": "ManageEngine",
+      "website": "manageengine.com"
+    },
+    {
+      "id": 13,
+      "name": "Siemens",
+      "website": "siemens.com"
+    },
+    {
+      "id": 14,
+      "name": "Zoom",
+      "website": "zoom.us"
+    },
+    {
+      "id": 15,
+      "name": "Splunk",
+      "website": "splunk.com"
+    },
+    {
+      "id": 16,
+      "name": "IBM",
+      "website": "ibm.com"
+    },
+    {
+      "id": 17,
+      "name": "Azure",
+      "website": "azure.microsoft.com"
+    },
+    {
+      "id": 18,
+      "name": "Fortinet",
+      "website": "fortinet.com"
+    }
+  ]
+}

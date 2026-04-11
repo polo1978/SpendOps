@@ -1,0 +1,15 @@
+{
+  "summary": [
+    "Renew recurring OPEX subscriptions for Claroty xDome OT Security (10 seats) and Tenable OT Security (project-based), totaling $14,400 annually.",
+    "Cancel legacy IBM Maximo subscription due to asset migration; avoid unnecessary annual cost of $28,800.",
+    "Subscribe to AWS S3 backup + validation workloads and Azure dev/test + M365 compute under OPEX model, each at $14,400/year, supporting cloud and hybrid infrastructure.",
+    "Maintain recurring OT security and compliance subscriptions (Claroty 10 seats: $7,200; Tenable project support: $7,200) to ensure continuous protection.",
+    "Eliminate non-recurring or auto-renewing OPEX commitments where not aligned with strategic priorities."
+  ],
+  "paragraph": "The department\u2019s operational technology security and cloud infrastructure are supported by a balanced mix of recurring OPEX subscriptions totaling $14,400 annually, alongside targeted project-based engagements. Legacy systems have been rationalized to reduce waste, while critical OT security and compliance needs remain actively funded under flexible monthly models.",
+  "top_actions": [
+    "Renew Claroty xDome OT Security (10 seats) and Tenable OT Security (project-based) subscriptions",
+    "Cancel legacy IBM Maximo subscription",
+    "Subscribe to AWS S3 backup + validation workloads and Azure dev/test + M365 compute under OPEX"
+  ]
+}

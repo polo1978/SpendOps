@@ -1,0 +1,52 @@
+{
+  "pre_computed_forecast": {
+    "department": "IT/OT",
+    "cycle": "FY2026",
+    "budget_total": 905692.0,
+    "actual_ytd": 233499.0,
+    "forecast_eoy_rolling": 1199496.33,
+    "forecast_eoy_plan": 933996.0,
+    "forecast_eoy_blended": 1066746.17,
+    "variance_vs_budget": 161054.17,
+    "category_breakdown": [
+      {
+        "category": "Hardware",
+        "actual_ytd": 38700.0,
+        "forecast_eoy": 154800.0
+      },
+      {
+        "category": "Software & Licenses",
+        "actual_ytd": 59799.0,
+        "forecast_eoy": 239196.33
+      },
+      {
+        "category": "Personnel",
+        "actual_ytd": 55100.0,
+        "forecast_eoy": 236900.0
+      },
+      {
+        "category": "Cloud & Infrastructure",
+        "actual_ytd": 154800.0,
+        "forecast_eoy": 154800.0
+      },
+      {
+        "category": "Security & Compliance",
+        "actual_ytd": 31800.0,
+        "forecast_eoy": 127200.0
+      },
+      {
+        "category": "Support & Outsourcing",
+        "actual_ytd": 6600.0,
+        "forecast_eoy": 26400.0
+      }
+    ],
+    "assumptions": [
+      "All hardware and software spend is driven by planned refresh cycles, subscriptions, and recurring security/IT services.",
+      "Cloud infrastructure (IaaS) usage is blended between capex for new deployments and opex for ongoing workloads.",
+      "Personnel costs reflect base salaries with annual benefits included in OPEX line items.",
+      "Recurring subscriptions (e.g., Microsoft 365, Azure DevOps) are confirmed as part of the forecast plan."
+    ],
+    "confidence_level": "High",
+    "missing_values_flagged": []
+  }
+}

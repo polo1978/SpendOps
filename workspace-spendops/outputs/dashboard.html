@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpendOps — Nexagen IT/OT | FY2026 Spend Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-base:     #080b12;
+    --bg-surface:  #0d1117;
+    --bg-card:     #111827;
+    --bg-elevated: #161e2e;
+    --border:      #1e2a3a;
+    --border-soft: #1a2235;
+    --text:        #e2e8f0;
+    --text-muted:  #64748b;
+    --text-dim:    #8897ae;
+    --blue:        #3b82f6;
+    --blue-bright: #60a5fa;
+    --blue-glow:   rgba(59,130,246,0.15);
+    --red:         #ef4444;
+    --red-soft:    rgba(239,68,68,0.12);
+    --amber:       #f59e0b;
+    --amber-soft:  rgba(245,158,11,0.12);
+    --green:       #22c55e;
+    --green-soft:  rgba(34,197,94,0.12);
+    --purple:      #a78bfa;
+    --purple-soft: rgba(167,139,250,0.12);
+    --mono: 'Fira Code', monospace;
+    --sans: 'Fira Sans', sans-serif;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg-base); color: var(--text);
+    font-family: var(--sans); font-size: 14px; line-height: 1.6;
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: var(--bg-surface); border-bottom: 1px solid var(--border);
+    padding: 0 32px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-brand { display:flex; align-items:center; gap:12px; }
+  .brand-logo   { display:flex; align-items:center; gap:8px; }
+  .brand-icon   { width:28px; height:28px; background:linear-gradient(135deg,#1d4ed8,#3b82f6); border-radius:6px; display:flex; align-items:center; justify-content:center; }
+  .brand-name   { font-family:var(--mono); font-size:15px; font-weight:700; color:var(--text); letter-spacing:-0.01em; }
+  .brand-sep    { width:1px; height:20px; background:var(--border); }
+  .brand-context{ font-size:12px; color:var(--text-muted); font-weight:400; letter-spacing:0.02em; }
+  .topbar-right { display:flex; align-items:center; gap:20px; }
+  .status-pill  { display:flex; align-items:center; gap:6px; background:var(--red-soft); border:1px solid rgba(239,68,68,0.25); border-radius:20px; padding:4px 10px; font-size:11px; font-family:var(--mono); color:var(--red); font-weight:600; letter-spacing:0.03em; }
+  .status-dot   { width:6px; height:6px; border-radius:50%; background:var(--red); animation:pulse-red 2s infinite; }
+  @keyframes pulse-red { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,0.5)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(239,68,68,0)} }
+  .gen-date     { font-size:11px; color:var(--text-muted); font-family:var(--mono); }
+
+  /* ── TAB BAR ── */
+  .tab-bar {
+    background: var(--bg-surface); border-bottom: 1px solid var(--border);
+    padding: 0 32px; display:flex; align-items:center; gap:4px;
+    position: sticky; top:56px; z-index:49;
+  }
+  .tab-btn {
+    background: none; border: none; cursor:pointer;
+    font-family: var(--sans); font-size: 13px; font-weight: 500;
+    color: var(--text-muted); padding: 12px 16px;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+    display:flex; align-items:center; gap:7px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--blue-bright); border-bottom-color: var(--blue); }
+  .tab-badge { font-family:var(--mono); font-size:10px; font-weight:700; padding:1px 6px; border-radius:8px; background:var(--red-soft); color:var(--red); border:1px solid rgba(239,68,68,0.2); }
+
+  /* ── TAB PANELS ── */
+  #tab-dashboard { display:block; }
+  #tab-data      { display:none; }
+
+  /* ── PAGE ── */
+  .page { max-width:1400px; margin:0 auto; padding:28px 32px 48px; }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size:10px; font-family:var(--mono); color:var(--text-muted);
+    letter-spacing:0.12em; text-transform:uppercase; margin-bottom:12px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── NARRATIVE ── */
+  .narrative-panel {
+    background:var(--bg-card); border:1px solid var(--border);
+    border-left:3px solid var(--purple); border-radius:var(--radius-lg);
+    padding:20px 24px; margin-bottom:28px; position:relative; overflow:hidden;
+    animation:fadeUp 0.4s ease 0.1s both;
+  }
+  .narrative-panel::before { content:''; position:absolute; top:0; right:0; width:300px; height:100%; background:radial-gradient(ellipse at top right,rgba(167,139,250,0.05) 0%,transparent 70%); pointer-events:none; }
+  .narrative-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .ai-badge { display:flex; align-items:center; gap:6px; background:var(--purple-soft); border:1px solid rgba(167,139,250,0.25); border-radius:20px; padding:3px 10px; font-size:10px; font-family:var(--mono); color:var(--purple); font-weight:600; letter-spacing:0.06em; }
+  .narrative-title { font-size:13px; font-weight:600; color:var(--text-dim); }
+  .narrative-text { font-size:14px; line-height:1.75; color:var(--text); font-weight:400; }
+  .narrative-text strong { color:#fff; font-weight:600; }
+  .narrative-text .c-red   { color:var(--red); font-weight:600; }
+  .narrative-text .c-amber { color:var(--amber); font-weight:600; }
+  .narrative-text .c-green { color:var(--green); font-weight:600; }
+
+  /* ── TICKER BAR ── */
+  .ticker-wrap { margin-bottom:20px; border-radius:var(--radius-lg); overflow:hidden; animation:fadeUp 0.4s ease 0.1s both; }
+  .ticker-bar {
+    background:var(--bg-card); border:1px solid var(--border); border-left:3px solid var(--purple);
+    padding:0 16px; height:44px; display:flex; align-items:center; gap:12px;
+    cursor:pointer; width:100%; text-align:left; transition:border-color 0.2s,background 0.2s;
+  }
+  .ticker-bar:hover { border-color:rgba(167,139,250,0.4); background:var(--bg-elevated); }
+  .ticker-label {
+    flex-shrink:0; display:flex; align-items:center; gap:6px;
+    background:var(--purple-soft); border:1px solid rgba(167,139,250,0.25); border-radius:20px;
+    padding:3px 10px; font-size:10px; font-family:var(--mono); color:var(--purple);
+    font-weight:600; letter-spacing:0.06em; white-space:nowrap;
+  }
+  .ticker-sep-v { width:1px; height:20px; background:var(--border); flex-shrink:0; }
+  .ticker-scroll-wrap { flex:1; overflow:hidden; position:relative; min-width:0; }
+  .ticker-scroll-wrap::before,
+  .ticker-scroll-wrap::after { content:''; position:absolute; top:0; bottom:0; width:28px; z-index:2; pointer-events:none; }
+  .ticker-scroll-wrap::before { left:0; background:linear-gradient(90deg,var(--bg-card),transparent); }
+  .ticker-scroll-wrap::after  { right:0; background:linear-gradient(-90deg,var(--bg-card),transparent); }
+  .ticker-bar:hover .ticker-scroll-wrap::before { background:linear-gradient(90deg,var(--bg-elevated),transparent); }
+  .ticker-bar:hover .ticker-scroll-wrap::after  { background:linear-gradient(-90deg,var(--bg-elevated),transparent); }
+  .ticker-track { display:flex; align-items:center; white-space:nowrap; animation:ticker-scroll 30s linear infinite; }
+  .ticker-track:hover { animation-play-state:paused; }
+  @keyframes ticker-scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .ticker-item { display:inline-flex; align-items:center; gap:8px; font-size:12px; font-family:var(--mono); padding:0 28px; color:var(--text-dim); }
+  .ticker-item .t-red   { color:var(--red); font-weight:700; }
+  .ticker-item .t-amber { color:var(--amber); font-weight:700; }
+  .ticker-item .t-green { color:var(--green); font-weight:700; }
+  .ticker-dot { width:3px; height:3px; border-radius:50%; background:var(--border); flex-shrink:0; }
+  .ticker-chevron { flex-shrink:0; color:var(--text-muted); transition:transform 0.25s; }
+  .ticker-bar[aria-expanded="true"] .ticker-chevron { transform:rotate(180deg); }
+  .ticker-expanded {
+    display:none; background:var(--bg-card); border:1px solid var(--border);
+    border-left:3px solid var(--purple); border-top:none;
+    padding:20px 24px; position:relative; overflow:hidden;
+  }
+  .ticker-expanded.open { display:block; }
+  .ticker-expanded::before { content:''; position:absolute; top:0; right:0; width:300px; height:100%; background:radial-gradient(ellipse at top right,rgba(167,139,250,0.05) 0%,transparent 70%); pointer-events:none; }
+
+  /* ── DATA TOOLBAR ── */
+  .data-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .toolbar-btn {
+    display:inline-flex; align-items:center; gap:6px; border-radius:6px;
+    padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer;
+    font-family:var(--sans); transition:background 0.15s,border-color 0.15s,color 0.15s;
+    white-space:nowrap; border:1px solid var(--border);
+  }
+  .toolbar-btn.add { background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.3); color:var(--green); }
+  .toolbar-btn.add:hover { background:rgba(34,197,94,0.18); border-color:rgba(34,197,94,0.5); }
+  .toolbar-btn.sync { background:rgba(59,130,246,0.1); border-color:rgba(59,130,246,0.3); color:var(--blue-bright); }
+  .toolbar-btn.sync:hover { background:rgba(59,130,246,0.18); border-color:rgba(59,130,246,0.5); }
+  .toolbar-btn:disabled { opacity:0.5; cursor:default; }
+  .del-btn {
+    background:none; border:1px solid transparent; border-radius:4px; cursor:pointer;
+    color:var(--text-muted); padding:3px 6px; line-height:1; transition:color 0.15s,background 0.15s,border-color 0.15s;
+    display:inline-flex; align-items:center;
+  }
+  .del-btn:hover { color:var(--red); background:var(--red-soft); border-color:rgba(239,68,68,0.3); }
+
+  /* ── ACTION BUTTONS ── */
+  .narrative-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border-soft); }
+  .action-btn {
+    display:inline-flex; align-items:center; gap:5px;
+    background:var(--bg-elevated); border:1px solid var(--border);
+    border-radius:6px; padding:6px 12px; font-size:11px; font-weight:600;
+    color:var(--text-dim); cursor:pointer; font-family:var(--sans);
+    transition:background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+    white-space:nowrap;
+  }
+  .action-btn:hover  { background:var(--bg-card); color:var(--text); transform:translateY(-1px); }
+  .action-btn:active { transform:translateY(0); }
+  .action-btn.critical { border-color:rgba(239,68,68,0.4); color:var(--red); }
+  .action-btn.critical:hover { background:var(--red-soft); border-color:rgba(239,68,68,0.6); }
+  .action-btn.warn { border-color:rgba(245,158,11,0.4); color:var(--amber); }
+  .action-btn.warn:hover { background:var(--amber-soft); border-color:rgba(245,158,11,0.6); }
+  .action-btn.save { border-color:rgba(34,197,94,0.4); color:var(--green); }
+  .action-btn.save:hover { background:var(--green-soft); border-color:rgba(34,197,94,0.6); }
+  .action-btn.logged { opacity:0.55; cursor:default; text-decoration:line-through; transform:none!important; }
+
+  /* ── TOAST ── */
+  #toast-container { position:fixed; top:80px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+  .toast {
+    background:var(--bg-elevated); border:1px solid var(--border);
+    border-left:3px solid var(--green); border-radius:var(--radius);
+    padding:12px 16px; font-size:12px; color:var(--text);
+    font-family:var(--mono); max-width:380px; pointer-events:all;
+    display:flex; align-items:flex-start; gap:10px;
+    animation:toastIn 0.25s ease both;
+    box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  }
+  .toast-icon { color:var(--green); flex-shrink:0; margin-top:1px; }
+  .toast-body { flex:1; }
+  .toast-label { font-weight:700; color:var(--green); display:block; margin-bottom:2px; }
+  .toast-sub   { color:var(--text-muted); font-size:10px; }
+  .toast-close { background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:14px; padding:0 0 0 8px; line-height:1; flex-shrink:0; }
+  .toast-close:hover { color:var(--text); }
+  @keyframes toastIn  { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes toastOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(16px)} }
+  .toast.out { animation:toastOut 0.2s ease forwards; }
+
+  /* ── KPI CARDS ── */
+  .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+  .kpi-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; position:relative; overflow:hidden; transition:border-color 0.2s,box-shadow 0.2s; cursor:default; animation:fadeUp 0.4s ease both; }
+  .kpi-card:nth-child(1){animation-delay:0.15s} .kpi-card:nth-child(2){animation-delay:0.22s} .kpi-card:nth-child(3){animation-delay:0.29s} .kpi-card:nth-child(4){animation-delay:0.36s}
+  .kpi-card:hover { border-color:rgba(59,130,246,0.3); box-shadow:0 0 0 1px rgba(59,130,246,0.08); }
+  .kpi-card.v-red    { border-left:3px solid var(--red); }
+  .kpi-card.v-amber  { border-left:3px solid var(--amber); }
+  .kpi-card.v-blue   { border-left:3px solid var(--blue); }
+  .kpi-card.v-neutral{ border-left:3px solid var(--border); }
+  .kpi-label { font-size:11px; font-weight:500; color:var(--text-muted); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; }
+  .kpi-value { font-family:var(--mono); font-size:26px; font-weight:700; letter-spacing:-0.02em; line-height:1.1; margin-bottom:6px; }
+  .kpi-value.c-red   { color:var(--red); } .kpi-value.c-amber { color:var(--amber); } .kpi-value.c-white { color:#fff; } .kpi-value.c-blue { color:var(--blue-bright); }
+  .kpi-sub { font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-bottom:12px; }
+  .kpi-badge { display:inline-flex; align-items:center; font-family:var(--mono); font-size:10px; font-weight:600; padding:2px 7px; border-radius:4px; letter-spacing:0.02em; }
+  .kpi-badge.red   { background:var(--red-soft); color:var(--red); border:1px solid rgba(239,68,68,0.2); }
+  .kpi-badge.amber { background:var(--amber-soft); color:var(--amber); border:1px solid rgba(245,158,11,0.2); }
+  .kpi-badge.blue  { background:var(--blue-glow); color:var(--blue-bright); border:1px solid rgba(59,130,246,0.2); }
+  .kpi-progress-wrap { margin-top:6px; }
+  .kpi-progress-label { display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-bottom:5px; font-family:var(--mono); }
+  .kpi-progress-bar { height:4px; background:var(--bg-elevated); border-radius:2px; overflow:hidden; }
+  .kpi-progress-fill { height:100%; border-radius:2px; }
+
+  /* ── TWO-COL ── */
+  .two-col { display:grid; grid-template-columns:1fr 420px; gap:20px; margin-bottom:28px; align-items:start; }
+
+  /* ── PANEL ── */
+  .panel { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; animation:fadeUp 0.4s ease 0.4s both; }
+  .panel-header { padding:16px 20px; border-bottom:1px solid var(--border-soft); display:flex; align-items:center; justify-content:space-between; background:var(--bg-elevated); }
+  .panel-title  { font-size:13px; font-weight:600; color:var(--text); display:flex; align-items:center; gap:8px; }
+  .panel-count  { font-family:var(--mono); font-size:10px; font-weight:600; padding:2px 8px; border-radius:10px; background:var(--bg-card); border:1px solid var(--border); color:var(--text-muted); }
+  .panel-count.red-ct { background:var(--red-soft); border-color:rgba(239,68,68,0.25); color:var(--red); }
+
+  /* ── RISK TABLE ── */
+  .risk-table { width:100%; border-collapse:collapse; }
+  .risk-table th { padding:10px 14px; text-align:left; font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.07em; border-bottom:1px solid var(--border-soft); background:var(--bg-surface); font-family:var(--mono); }
+  .risk-table td { padding:10px 14px; font-size:12.5px; border-bottom:1px solid var(--border-soft); vertical-align:middle; }
+  .risk-table tr:last-child td { border-bottom:none; }
+  .risk-table tr.row-critical { background:rgba(239,68,68,0.04); }
+  .risk-table tr.row-critical:hover { background:rgba(239,68,68,0.08); }
+  .risk-table tr.row-amber   { background:rgba(245,158,11,0.03); }
+  .risk-table tr.row-amber:hover { background:rgba(245,158,11,0.07); }
+  .risk-table tr.row-normal:hover { background:rgba(255,255,255,0.02); }
+  .risk-table tr { transition:background 0.15s; cursor:default; }
+  .product-name { font-weight:600; color:var(--text); font-size:12.5px; line-height:1.3; }
+  .product-cost { font-family:var(--mono); font-size:10.5px; color:var(--text-muted); margin-top:1px; }
+  .urgency-badge { display:inline-flex; align-items:center; font-family:var(--mono); font-size:10px; font-weight:700; padding:3px 8px; border-radius:4px; white-space:nowrap; letter-spacing:0.04em; }
+  .u-critical{ background:var(--red-soft); color:var(--red); border:1px solid rgba(239,68,68,0.3); }
+  .u-overdue { background:rgba(220,38,38,0.2); color:#fca5a5; border:1px solid rgba(220,38,38,0.4); }
+  .u-amber   { background:var(--amber-soft); color:var(--amber); border:1px solid rgba(245,158,11,0.3); }
+  .u-high    { background:rgba(59,130,246,0.1); color:var(--blue-bright); border:1px solid rgba(59,130,246,0.2); }
+  .u-medium  { background:rgba(100,116,139,0.1); color:var(--text-muted); border:1px solid rgba(100,116,139,0.2); }
+  .days-col  { font-family:var(--mono); font-weight:700; font-size:12px; white-space:nowrap; }
+  .d-red { color:var(--red); } .d-amber { color:var(--amber); } .d-dim { color:var(--text-dim); }
+  .owner-cell { display:flex; align-items:center; gap:6px; font-size:12px; }
+  .owner-missing { display:inline-flex; align-items:center; gap:4px; color:var(--red); font-size:10.5px; font-weight:600; background:var(--red-soft); border:1px solid rgba(239,68,68,0.2); border-radius:4px; padding:2px 7px; font-family:var(--mono); }
+  .owner-vacant  { display:inline-flex; align-items:center; gap:4px; color:var(--amber); font-size:10.5px; font-weight:600; background:var(--amber-soft); border:1px solid rgba(245,158,11,0.2); border-radius:4px; padding:2px 7px; font-family:var(--mono); }
+  .auto-badge    { font-family:var(--mono); font-size:9px; font-weight:600; padding:2px 5px; border-radius:3px; color:var(--amber); background:var(--amber-soft); border:1px solid rgba(245,158,11,0.2); }
+
+  /* ── CHART ── */
+  .chart-inner { padding:20px; }
+  .chart-legend { display:flex; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
+  .legend-item  { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted); }
+  .legend-swatch{ width:12px; height:4px; border-radius:2px; }
+  .chart-canvas-wrap { position:relative; height:260px; }
+  .summary-totals { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px; padding-top:14px; border-top:1px solid var(--border-soft); }
+  .summary-stat { text-align:center; }
+  .summary-stat-val { font-family:var(--mono); font-size:14px; font-weight:700; line-height:1.2; }
+  .summary-stat-lbl { font-size:10px; color:var(--text-muted); margin-top:2px; text-transform:uppercase; letter-spacing:0.06em; }
+
+  /* ── ANOMALY GRID ── */
+  .anomaly-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+  .anomaly-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; position:relative; overflow:hidden; transition:transform 0.2s,box-shadow 0.2s; cursor:default; animation:fadeUp 0.4s ease both; }
+  .anomaly-card:nth-child(1){animation-delay:0.45s} .anomaly-card:nth-child(2){animation-delay:0.52s} .anomaly-card:nth-child(3){animation-delay:0.59s} .anomaly-card:nth-child(4){animation-delay:0.66s}
+  .anomaly-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.3); }
+  .anomaly-card.sev-critical { border-top:2px solid var(--red); }
+  .anomaly-card.sev-critical::before { content:''; position:absolute; top:0; left:0; right:0; height:40px; background:linear-gradient(180deg,rgba(239,68,68,0.06) 0%,transparent 100%); pointer-events:none; }
+  .anomaly-card.sev-high { border-top:2px solid var(--amber); }
+  .anomaly-card.sev-high::before { content:''; position:absolute; top:0; left:0; right:0; height:40px; background:linear-gradient(180deg,rgba(245,158,11,0.06) 0%,transparent 100%); pointer-events:none; }
+  .anomaly-icon  { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+  .icon-red      { background:var(--red-soft); }
+  .icon-amber    { background:var(--amber-soft); }
+  .anomaly-sev   { font-family:var(--mono); font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+  .anomaly-sev.red   { color:var(--red); } .anomaly-sev.amber { color:var(--amber); }
+  .anomaly-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:6px; line-height:1.3; }
+  .anomaly-impact { margin-top:10px; padding-top:10px; border-top:1px solid var(--border-soft); font-family:var(--mono); font-size:12px; font-weight:700; }
+  .anomaly-impact.red   { color:var(--red); } .anomaly-impact.amber { color:var(--amber); }
+
+  /* ── CONSOLIDATION ── */
+  .consol-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:28px; }
+  .consol-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; position:relative; overflow:hidden; transition:border-color 0.2s; cursor:default; animation:fadeUp 0.4s ease both; }
+  .consol-card:nth-child(1){animation-delay:0.7s} .consol-card:nth-child(2){animation-delay:0.77s} .consol-card:nth-child(3){animation-delay:0.84s}
+  .consol-card:hover { border-color:rgba(34,197,94,0.25); }
+  .consol-savings { position:absolute; top:16px; right:16px; background:var(--green-soft); border:1px solid rgba(34,197,94,0.25); border-radius:6px; padding:4px 10px; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--green); }
+  .consol-savings.amber-savings { background:var(--amber-soft); border-color:rgba(245,158,11,0.25); color:var(--amber); }
+  .consol-type { display:inline-flex; align-items:center; gap:5px; font-size:9px; font-family:var(--mono); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:3px 8px; border-radius:4px; margin-bottom:12px; }
+  .ct-consolidate { background:rgba(59,130,246,0.1); color:var(--blue-bright); border:1px solid rgba(59,130,246,0.2); }
+  .ct-cancel      { background:var(--red-soft); color:var(--red); border:1px solid rgba(239,68,68,0.2); }
+  .ct-evaluate    { background:var(--amber-soft); color:var(--amber); border:1px solid rgba(245,158,11,0.2); }
+  .consol-title   { font-size:14px; font-weight:700; color:var(--text); margin-bottom:8px; line-height:1.3; }
+  .consol-vendors { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+  .vendor-tag     { font-size:11px; font-family:var(--mono); padding:3px 8px; border-radius:4px; background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-dim); }
+  .consol-deadline{ font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:5px; font-family:var(--mono); }
+  .deadline-amber { color:var(--amber); font-weight:600; } .deadline-red { color:var(--red); font-weight:600; }
+
+  /* ── CARD BODY CLAMP ── */
+  .card-body {
+    font-size:12px; color:var(--text-dim); line-height:1.6;
+    display:-webkit-box; -webkit-box-orient:vertical;
+    -webkit-line-clamp:3; overflow:hidden;
+    margin-bottom:6px;
+  }
+  .card-body.expanded { display:block; overflow:visible; -webkit-line-clamp:unset; }
+  .card-body strong { color:var(--text); }
+  .show-more-btn {
+    background:none; border:none; cursor:pointer;
+    font-size:11px; font-family:var(--mono); font-weight:600;
+    color:var(--blue-bright); padding:2px 0; margin-bottom:8px;
+    letter-spacing:0.02em; transition:color 0.15s;
+  }
+  .show-more-btn:hover { color:#93c5fd; }
+
+  /* ── SAVINGS BANNER ── */
+  .savings-banner { background:var(--bg-card); border:1px solid rgba(34,197,94,0.2); border-radius:var(--radius-lg); padding:20px 24px; margin-bottom:28px; display:flex; align-items:center; justify-content:space-between; gap:20px; position:relative; overflow:hidden; }
+  .savings-banner::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,rgba(34,197,94,0.04) 0%,transparent 60%); pointer-events:none; }
+  .savings-left   { display:flex; align-items:center; gap:16px; }
+  .savings-icon   { width:44px; height:44px; background:var(--green-soft); border:1px solid rgba(34,197,94,0.2); border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .savings-text h3{ font-size:14px; font-weight:700; color:var(--text); margin-bottom:2px; }
+  .savings-text p { font-size:12px; color:var(--text-muted); }
+  .savings-amount { font-family:var(--mono); font-size:32px; font-weight:700; color:var(--green); letter-spacing:-0.02em; white-space:nowrap; }
+  .savings-amount span { font-size:14px; color:var(--text-muted); font-weight:400; margin-left:4px; }
+
+  /* ── DATA TAB ── */
+  .data-page { max-width:1400px; margin:0 auto; padding:28px 32px 48px; }
+  .data-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .data-header h2 { font-size:16px; font-weight:700; color:var(--text); }
+  .data-header p  { font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .data-totals { display:flex; gap:24px; flex-wrap:wrap; }
+  .data-total-stat { text-align:right; }
+  .data-total-val  { font-family:var(--mono); font-size:18px; font-weight:700; color:var(--blue-bright); }
+  .data-total-lbl  { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; }
+
+  .data-panel { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
+  .data-table-wrap { overflow-x:auto; }
+  .data-table { width:100%; border-collapse:collapse; min-width:900px; }
+  .data-table th { padding:10px 12px; text-align:left; font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.07em; border-bottom:1px solid var(--border-soft); background:var(--bg-surface); font-family:var(--mono); }
+  .data-table td { padding:8px 12px; border-bottom:1px solid var(--border-soft); vertical-align:middle; }
+  .data-table tr:last-child td { border-bottom:none; }
+  .data-table tr:hover td { background:rgba(255,255,255,0.02); }
+
+  .cell-input {
+    background: transparent; border: 1px solid transparent;
+    border-radius:4px; padding:4px 6px; font-size:12.5px;
+    font-family: var(--sans); color:var(--text); width:100%;
+    transition: border-color 0.15s, background 0.15s;
+    outline: none;
+  }
+  .cell-input:hover { border-color:var(--border); background:var(--bg-elevated); }
+  .cell-input:focus { border-color:var(--blue); background:var(--bg-elevated); }
+  .cell-input.cost  { font-family:var(--mono); font-size:12px; }
+  .cell-input.date  { font-family:var(--mono); font-size:12px; color-scheme:dark; }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(0.5); cursor:pointer; }
+
+  .cell-changed { border-color:rgba(59,130,246,0.5)!important; background:rgba(59,130,246,0.06)!important; }
+  .data-updated-badge { display:none; font-family:var(--mono); font-size:10px; font-weight:600; padding:2px 8px; border-radius:4px; background:var(--blue-glow); color:var(--blue-bright); border:1px solid rgba(59,130,246,0.2); margin-left:8px; }
+  .data-updated-badge.visible { display:inline-flex; animation:fadeUp 0.2s ease; }
+  .data-note { font-size:11px; color:var(--text-muted); padding:12px 16px; border-top:1px solid var(--border-soft); display:flex; align-items:center; gap:6px; }
+
+  /* ── FOOTER ── */
+  .footer { background:var(--bg-surface); border-top:1px solid var(--border); padding:18px 32px; display:flex; align-items:center; justify-content:space-between; font-size:11px; color:var(--text-muted); font-family:var(--mono); }
+  .footer-left { display:flex; align-items:center; gap:16px; }
+  .footer-sep  { width:1px; height:12px; background:var(--border); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+  @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; } }
+  @media (max-width:1100px) { .two-col { grid-template-columns:1fr; } .anomaly-grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:768px)  { .page,.data-page { padding:16px; } .kpi-row { grid-template-columns:repeat(2,1fr); } .consol-grid { grid-template-columns:1fr; } .anomaly-grid { grid-template-columns:1fr; } .topbar { padding:0 16px; } .gen-date { display:none; } .tab-bar { padding:0 16px; } }
+
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg-base); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:#2a3650; }
+
+  /* ── LIGHT MODE ── */
+  [data-theme="light"] {
+    --bg-base:     #f1f5f9;
+    --bg-surface:  #ffffff;
+    --bg-card:     #f8fafc;
+    --bg-elevated: #e2e8f0;
+    --border:      #cbd5e1;
+    --border-soft: #dde4ee;
+    --text:        #0f172a;
+    --text-muted:  #64748b;
+    --text-dim:    #475569;
+    --blue-glow:   rgba(59,130,246,0.10);
+    --red-soft:    rgba(239,68,68,0.09);
+    --amber-soft:  rgba(245,158,11,0.09);
+    --green-soft:  rgba(34,197,94,0.09);
+    --purple-soft: rgba(167,139,250,0.09);
+  }
+  [data-theme="light"] body { background:var(--bg-base); color:var(--text); }
+  [data-theme="light"] .narrative-text strong,
+  [data-theme="light"] .kpi-value.c-white { color:#0f172a; }
+  [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer; padding: 5px 10px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600; font-family: var(--sans);
+    color: var(--text-dim); transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .theme-toggle:hover { background: var(--bg-card); color: var(--text); border-color: var(--blue); }
+  .theme-toggle svg { flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!-- TOPBAR -->
+<header class="topbar" role="banner">
+  <div class="topbar-brand">
+    <div class="brand-logo">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 12V8l5-5 5 5v4H3z" stroke="#93c5fd" stroke-width="1.4" stroke-linejoin="round" fill="none"/>
+          <path d="M6 12v-3h4v3" stroke="#93c5fd" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="brand-name">SpendOps</span>
+    </div>
+    <div class="brand-sep" aria-hidden="true"></div>
+    <span class="brand-context">My Personal Budget Intelligence Platform</span>
+  </div>
+  <div class="topbar-right">
+    <div class="status-pill" role="status" aria-label="2 critical alerts active">
+      <div class="status-dot" aria-hidden="true"></div>
+      2 CRITICAL
+    </div>
+    <span class="gen-date" id="gen-date-display">Generated Mar 7, 2026</span>
+    <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle dark/light mode">
+      <svg id="theme-icon-moon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <svg id="theme-icon-sun" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      <span id="theme-label">Light</span>
+    </button>
+  </div>
+</header>
+
+<!-- TAB BAR -->
+<nav class="tab-bar" role="tablist" aria-label="Dashboard sections">
+  <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-dashboard" id="btn-dashboard" onclick="switchTab('dashboard')">
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <rect x="1" y="1" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      <rect x="7.5" y="1" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      <rect x="1" y="7.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.2" fill="none"/>
+    </svg>
+    Dashboard
+    <span class="tab-badge">2</span>
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-data" id="btn-data" onclick="switchTab('data')">
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <rect x="1" y="3" width="12" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      <path d="M1 6h12M5 3v8" stroke="currentColor" stroke-width="1.2"/>
+    </svg>
+    Data
+    <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-left:2px;">10 contracts</span>
+  </button>
+</nav>
+
+<!-- ═══ TAB: DASHBOARD ═══ -->
+<div id="tab-dashboard" role="tabpanel" aria-labelledby="btn-dashboard">
+<main class="page" role="main">
+
+  <!-- AI NARRATIVE TICKER -->
+  <div class="section-label" aria-hidden="true">AI Analyst Brief</div>
+  <div class="ticker-wrap" id="narrative-wrap">
+
+    <!-- Collapsed: scrolling ticker bar -->
+    <button class="ticker-bar" id="ticker-bar" onclick="toggleNarrative()"
+            aria-expanded="false" aria-controls="narrative-expanded"
+            aria-label="AI Analyst Brief — click to expand full summary">
+      <div class="ticker-label" aria-hidden="true">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#a78bfa" stroke-width="1.2"/><path d="M3.5 5h3M5 3.5v3" stroke="#a78bfa" stroke-width="1.2" stroke-linecap="round"/></svg>
+        AI BRIEF
+      </div>
+      <div class="ticker-sep-v" aria-hidden="true"></div>
+      <div class="ticker-scroll-wrap" aria-hidden="true">
+        <div class="ticker-track">
+          <span class="ticker-item"><span class="t-red">&#9650; BUDGET ALERT</span><span class="ticker-dot"></span>FY2026 forecast <span class="t-red">&nbsp;$1,066,746&nbsp;</span> — <span class="t-red">+$161,054 over budget</span>&nbsp;(+17.8%)</span>
+          <span class="ticker-item"><span class="t-red">&#9632; CRITICAL</span><span class="ticker-dot"></span>CrowdStrike <span class="t-red">&nbsp;$65K&nbsp;</span> PAST DUE — no owner — <span class="t-red">auto-renewing NOW</span></span>
+          <span class="ticker-item"><span class="t-red">&#9632; CRITICAL</span><span class="ticker-dot"></span>Claroty xDome <span class="t-red">&nbsp;$54K&nbsp;</span> auto-renews in <span class="t-red">&nbsp;9 days&nbsp;</span> — no owner assigned</span>
+          <span class="ticker-item"><span class="t-amber">&#9650; HIGH</span><span class="ticker-dot"></span>ServiceNow ITSM — <span class="t-amber">VACANT owner</span> — manual renewal deadline <span class="t-amber">&nbsp;Apr 10</span></span>
+          <span class="ticker-item"><span class="t-green">&#9660; SAVINGS</span><span class="ticker-dot"></span>Confirmed <span class="t-green">&nbsp;$37,200/yr&nbsp;</span> | Potential additional <span class="t-amber">&nbsp;$31,200/yr</span></span>
+          <!-- duplicate for seamless infinite loop -->
+          <span class="ticker-item"><span class="t-red">&#9650; BUDGET ALERT</span><span class="ticker-dot"></span>FY2026 forecast <span class="t-red">&nbsp;$1,066,746&nbsp;</span> — <span class="t-red">+$161,054 over budget</span>&nbsp;(+17.8%)</span>
+          <span class="ticker-item"><span class="t-red">&#9632; CRITICAL</span><span class="ticker-dot"></span>CrowdStrike <span class="t-red">&nbsp;$65K&nbsp;</span> PAST DUE — no owner — <span class="t-red">auto-renewing NOW</span></span>
+          <span class="ticker-item"><span class="t-red">&#9632; CRITICAL</span><span class="ticker-dot"></span>Claroty xDome <span class="t-red">&nbsp;$54K&nbsp;</span> auto-renews in <span class="t-red">&nbsp;9 days&nbsp;</span> — no owner assigned</span>
+          <span class="ticker-item"><span class="t-amber">&#9650; HIGH</span><span class="ticker-dot"></span>ServiceNow ITSM — <span class="t-amber">VACANT owner</span> — manual renewal deadline <span class="t-amber">&nbsp;Apr 10</span></span>
+          <span class="ticker-item"><span class="t-green">&#9660; SAVINGS</span><span class="ticker-dot"></span>Confirmed <span class="t-green">&nbsp;$37,200/yr&nbsp;</span> | Potential additional <span class="t-amber">&nbsp;$31,200/yr</span></span>
+        </div>
+      </div>
+      <div class="ticker-sep-v" aria-hidden="true"></div>
+      <svg class="ticker-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M3.5 5.5l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <!-- Expanded: full narrative panel -->
+    <div class="ticker-expanded" id="narrative-expanded" role="region" aria-label="AI-generated executive summary">
+      <div class="narrative-header" style="margin-bottom:12px;">
+        <div class="ai-badge" aria-hidden="true">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#a78bfa" stroke-width="1.2"/><path d="M3.5 5h3M5 3.5v3" stroke="#a78bfa" stroke-width="1.2" stroke-linecap="round"/></svg>
+          AI GENERATED
+        </div>
+        <span class="narrative-title">FY2026 Q1 Executive Summary — Nexagen IT/OT</span>
+      </div>
+      <p class="narrative-text">
+        Nexagen IT/OT is tracking <span class="c-red">+$161,054 over its FY2026 budget of $905,692</span>, with a blended EOY forecast of $1,066,746 driven primarily by AWS cloud overruns.
+        The highest-urgency risk is <span class="c-red">CrowdStrike ($65K, overdue) and Claroty xDome ($54K, 9 days to auto-renew)</span> — both without assigned owners, meaning procurement has no control over these commitments.
+        Confirmed consolidation of SolarWinds + ManageEngine and cancellation of IBM Maximo yields <span class="c-green">$37,200 in annual savings</span>, with up to $31,200 additional from Tenable/Claroty OT overlap.
+        Three owner assignments and one cancellation decision are required within 48 hours to prevent uncontrolled spend.
+      </p>
+      <div class="narrative-actions" role="list" aria-label="Priority actions">
+        <button class="action-btn critical" onclick="logAction(this)" aria-label="Log action: Assign CrowdStrike owner">Assign CrowdStrike owner — PAST DUE</button>
+        <button class="action-btn critical" onclick="logAction(this)" aria-label="Log action: Assign Claroty xDome owner">Assign Claroty xDome owner — 9 days</button>
+        <button class="action-btn warn" onclick="logAction(this)" aria-label="Log action: Resolve ServiceNow owner">Resolve ServiceNow VACANT owner</button>
+        <button class="action-btn save" onclick="logAction(this)" aria-label="Log action: Cancel IBM Maximo">Cancel IBM Maximo before May 1</button>
+        <button class="action-btn save" onclick="logAction(this)" aria-label="Log action: Consolidate ManageEngine">Consolidate ManageEngine &#8594; SolarWinds</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="section-label" aria-hidden="true">Budget Summary — FY2026</div>
+  <div class="kpi-row" role="list" aria-label="Key financial metrics">
+
+    <div class="kpi-card v-blue" role="listitem">
+      <div class="kpi-label">Total Budget
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="1" y="3" width="12" height="9" rx="1.5" stroke="#3b82f6" stroke-width="1.2" fill="none"/><path d="M1 6h12" stroke="#3b82f6" stroke-width="1.2"/><path d="M4 9.5h2M8 9.5h2" stroke="#3b82f6" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="kpi-value c-white">$905,692</div>
+      <div class="kpi-sub"><span>FY2026 Approved Budget</span><span class="kpi-badge blue">OPEX</span></div>
+      <div class="kpi-progress-wrap">
+        <div class="kpi-progress-label"><span>Budget utilization</span><span>25.8% consumed</span></div>
+        <div class="kpi-progress-bar" role="progressbar" aria-valuenow="26" aria-valuemin="0" aria-valuemax="100"><div class="kpi-progress-fill" style="width:25.8%;background:var(--blue);"></div></div>
+      </div>
+    </div>
+
+    <div class="kpi-card v-neutral" role="listitem">
+      <div class="kpi-label">Actual YTD
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="#64748b" stroke-width="1.2" fill="none"/><path d="M7 4v3.5l2 1.5" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="kpi-value c-white">$233,499</div>
+      <div class="kpi-sub"><span>Through March 6, 2026</span><span class="kpi-badge blue">Q1</span></div>
+      <div class="kpi-progress-wrap">
+        <div class="kpi-progress-label"><span>of $905,692 approved</span><span>$672,193 remaining</span></div>
+        <div class="kpi-progress-bar" role="progressbar" aria-valuenow="26" aria-valuemin="0" aria-valuemax="100"><div class="kpi-progress-fill" style="width:25.8%;background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div></div>
+      </div>
+    </div>
+
+    <div class="kpi-card v-amber" role="listitem">
+      <div class="kpi-label">Forecast EOY
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 10L5 7l3 2 4-5" stroke="#f59e0b" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="4" r="1.2" fill="#f59e0b"/></svg>
+      </div>
+      <div class="kpi-value c-amber">$1,066,746</div>
+      <div class="kpi-sub"><span>Blended run-rate projection</span><span class="kpi-badge amber">117.8%</span></div>
+      <div class="kpi-progress-wrap">
+        <div class="kpi-progress-label"><span>vs $905,692 approved</span><span style="color:var(--amber)">+17.8% over</span></div>
+        <div class="kpi-progress-bar" role="progressbar" aria-valuenow="118" aria-valuemin="0" aria-valuemax="100"><div class="kpi-progress-fill" style="width:100%;background:linear-gradient(90deg,#f59e0b,#fbbf24);"></div></div>
+      </div>
+    </div>
+
+    <div class="kpi-card v-red" role="listitem">
+      <div class="kpi-label">Variance vs Budget
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 10V4M4 7l3-3 3 3" stroke="#ef4444" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="kpi-value c-red">+$161,054</div>
+      <div class="kpi-sub"><span>Over-budget exposure at EOY</span><span class="kpi-badge red">OVER</span></div>
+      <div class="kpi-progress-wrap">
+        <div class="kpi-progress-label"><span>Requires mitigation action</span><span style="color:var(--red)">+17.8% above plan</span></div>
+        <div class="kpi-progress-bar" role="progressbar" aria-valuenow="18" aria-valuemin="0" aria-valuemax="100"><div class="kpi-progress-fill" style="width:17.8%;background:var(--red);"></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RENEWAL RISK TABLE + CHART -->
+  <div class="two-col">
+    <div>
+      <div class="section-label" aria-hidden="true">Contract Renewal Risk</div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 1L1 4v4c0 3 2.6 5.5 6 6.5 3.4-1 6-3.5 6-6.5V4L7 1z" stroke="#ef4444" stroke-width="1.2" fill="none" stroke-linejoin="round"/><path d="M5 7l1.5 1.5L9 5.5" stroke="#ef4444" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Active Contract Risk Register
+          </span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="panel-count red-ct">2 CRITICAL</span>
+            <span class="panel-count" id="contract-count">10 contracts</span>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="risk-table" aria-label="Contract renewal risk register">
+            <thead>
+              <tr>
+                <th scope="col">Contract</th>
+                <th scope="col">Renewal Date</th>
+                <th scope="col" style="text-align:center;">Days Left</th>
+                <th scope="col">Urgency</th>
+                <th scope="col">Owner</th>
+                <th scope="col" style="text-align:right;">Annual Cost</th>
+              </tr>
+            </thead>
+            <tbody id="risk-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label" aria-hidden="true">Spend by Category</div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="1" y="7" width="2.5" height="6" rx="1" fill="#3b82f6"/><rect x="5" y="4" width="2.5" height="9" rx="1" fill="#60a5fa"/><rect x="9" y="2" width="2.5" height="11" rx="1" fill="#93c5fd"/></svg>
+            EOY Forecast by Category
+          </span>
+        </div>
+        <div class="chart-inner">
+          <div class="chart-legend" aria-hidden="true">
+            <div class="legend-item"><div class="legend-swatch" style="background:rgba(59,130,246,0.75);"></div>Actual YTD</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:rgba(96,165,250,0.3);border:1px dashed rgba(96,165,250,0.6);"></div>Forecast EOY</div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="categoryChart" aria-label="Horizontal bar chart — spend by category" role="img"></canvas>
+          </div>
+          <div class="summary-totals">
+            <div class="summary-stat"><div class="summary-stat-val" style="color:var(--blue-bright);">$233,499</div><div class="summary-stat-lbl">Actual YTD</div></div>
+            <div class="summary-stat"><div class="summary-stat-val" style="color:var(--amber);">$1,199,496</div><div class="summary-stat-lbl">Rolling EOY</div></div>
+            <div class="summary-stat"><div class="summary-stat-val" style="color:var(--red);">+$161,054</div><div class="summary-stat-lbl">Variance</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANOMALY FLAGS -->
+  <div class="section-label" aria-hidden="true">Anomaly Flags</div>
+  <div class="anomaly-grid" role="list">
+
+    <div class="anomaly-card sev-critical" role="listitem">
+      <div class="anomaly-icon icon-red" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2L2 14h14L9 2z" stroke="#ef4444" stroke-width="1.4" stroke-linejoin="round" fill="none"/><path d="M9 7v3.5M9 12.5v.5" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="anomaly-sev red"><svg width="7" height="7" viewBox="0 0 8 8" fill="#ef4444" aria-hidden="true"><circle cx="4" cy="4" r="4"/></svg>CRITICAL</div>
+      <div class="anomaly-title">CrowdStrike Renewal Overdue</div>
+      <div class="card-body">Renewal date March 1, 2026 — now past due. No owner. <strong>Auto-renew ON</strong>: $65K may have committed without procurement authorization.</div>
+      <button class="show-more-btn" onclick="toggleExpand(this)" aria-expanded="false">Show more</button>
+      <div class="anomaly-impact red">$65,000 exposure — Escalate immediately</div>
+    </div>
+
+    <div class="anomaly-card sev-critical" role="listitem">
+      <div class="anomaly-icon icon-red" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#ef4444" stroke-width="1.4" fill="none"/><path d="M9 5.5v4M9 11.5v.8" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="anomaly-sev red"><svg width="7" height="7" viewBox="0 0 8 8" fill="#ef4444" aria-hidden="true"><circle cx="4" cy="4" r="4"/></svg>CRITICAL</div>
+      <div class="anomaly-title">Claroty xDome — Auto-Renews in 9 Days</div>
+      <div class="card-body">Renews <strong>March 15, 2026</strong>. No owner assigned, auto-renew ON. Procurement has never reviewed this contract — window closes in 9 days.</div>
+      <button class="show-more-btn" onclick="toggleExpand(this)" aria-expanded="false">Show more</button>
+      <div class="anomaly-impact red">$54,000 — Assign owner today</div>
+    </div>
+
+    <div class="anomaly-card sev-high" role="listitem">
+      <div class="anomaly-icon icon-amber" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4.5 12.5a4 4 0 110-8 4.5 4.5 0 018.5 1H14a2.5 2.5 0 010 5H5" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round" fill="none"/><path d="M9 7v3.5M9 12v.5" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </div>
+      <div class="anomaly-sev amber"><svg width="7" height="7" viewBox="0 0 8 8" fill="#f59e0b" aria-hidden="true"><circle cx="4" cy="4" r="4"/></svg>HIGH</div>
+      <div class="anomaly-title">AWS Cloud Spend Over Budget</div>
+      <div class="card-body">Cloud &amp; Infrastructure forecasting <strong>$154,800 EOY</strong> — trending <strong>+$60K above plan</strong>. No reserved instances or spend controls in place.</div>
+      <button class="show-more-btn" onclick="toggleExpand(this)" aria-expanded="false">Show more</button>
+      <div class="anomaly-impact amber">~$60,000 overrun projected at EOY</div>
+    </div>
+
+    <div class="anomaly-card sev-high" role="listitem">
+      <div class="anomaly-icon icon-amber" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3a3 3 0 100 6 3 3 0 000-6z" stroke="#f59e0b" stroke-width="1.4" fill="none"/><path d="M3 15c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round" fill="none"/><path d="M13.5 7.5l2 2M15.5 7.5l-2 2" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </div>
+      <div class="anomaly-sev amber"><svg width="7" height="7" viewBox="0 0 8 8" fill="#f59e0b" aria-hidden="true"><circle cx="4" cy="4" r="4"/></svg>HIGH</div>
+      <div class="anomaly-title">ServiceNow Owner — VACANT</div>
+      <div class="card-body">Owner departed Jan 2026. Auto-renew is <strong>OFF</strong> — contract lapses without manual action before <strong>April 10, 2026</strong>. No decision on record.</div>
+      <button class="show-more-btn" onclick="toggleExpand(this)" aria-expanded="false">Show more</button>
+      <div class="anomaly-impact amber">$36,000 at risk — 35 days to deadline</div>
+    </div>
+
+  </div>
+
+  <!-- CONSOLIDATION -->
+  <div class="section-label" aria-hidden="true">Consolidation Recommendations</div>
+  <div class="consol-grid" role="list">
+
+    <div class="consol-card" role="listitem">
+      <div class="consol-savings">Save $8,400/yr</div>
+      <div class="consol-type ct-consolidate">
+        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 5h6M5 2l3 3-3 3" stroke="#60a5fa" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        CONSOLIDATE
+      </div>
+      <div class="consol-title">Consolidate Network Monitoring</div>
+      <div class="card-body"><strong>SolarWinds NPM</strong> and <strong>ManageEngine OpManager</strong> provide identical IT network visibility. Consolidating to SolarWinds eliminates $8,400/yr with no coverage gap.</div>
+      <button class="show-more-btn" onclick="toggleExpand(this)" aria-expanded="false">Show more</button>
+      <div class="consol-vendors" style="margin-top:10px;">
+        <span class="vendor-tag">SolarWinds — $14,400/yr ✓ Keep</span>
+        <span class="vendor-tag">ManageEngine — $8,400/yr ✗ Cancel</span>
+      </div>
+      <div class="consol-deadline">Act before: <span class="deadline-amber">May 18, 2026</span></div>
+    </div>
+
+    <div class="consol-card" role="listitem">
+      <div class="consol-savings">Save $28,800/yr</div>
+      <div class="consol-type ct-cancel">
+        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M1 9l8-8M9 9L1 1" stroke="#ef4444" stroke-width="1.4" stroke-linecap="round"/></svg>
+        CANCEL
+      </div>
+      <div class="consol-title">Cancel IBM Maximo (Legacy)</div>
+      <div class="card-body"><strong>IBM Maximo</strong> is being replaced by a <strong>SAP migration in progress</strong>. VACANT owner and May 1 renewal create a clean exit — $28,800/yr saved with no operational risk.</div>
+      <button class="show-more-btn" onclick="toggleExpand(this)" aria-expanded="false">Show more</button>
+      <div class="consol-vendors" style="margin-top:10px;">
+        <span class="vendor-tag">IBM Maximo — $28,800/yr ✗ Do Not Renew</span>
+        <span class="vendor-tag">SAP — Replacement in progress</span>
+      </div>
+      <div class="consol-deadline">Cancel before: <span class="deadline-red">May 1, 2026</span></div>
+    </div>
+
+    <div class="consol-card" role="listitem">
+      <div class="consol-savings amber-savings">Up to $31,200/yr</div>
+      <div class="consol-type ct-evaluate">
+        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true"><circle cx="5" cy="5" r="3.5" stroke="#f59e0b" stroke-width="1.3" fill="none"/><path d="M5 3v2.5M5 7v.3" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round"/></svg>
+        EVALUATE
+      </div>
+      <div class="consol-title">OT Security Platform Overlap</div>
+      <div class="card-body"><strong>Tenable OT</strong> ($31,200/yr) and <strong>Claroty xDome</strong> ($54,000/yr) overlap in OT vulnerability scanning. Claroty is strategic — evaluate post-renewal whether Tenable is redundant.</div>
+      <button class="show-more-btn" onclick="toggleExpand(this)" aria-expanded="false">Show more</button>
+      <div class="consol-vendors" style="margin-top:10px;">
+        <span class="vendor-tag">Claroty xDome — $54,000/yr ✓ Strategic</span>
+        <span class="vendor-tag">Tenable OT — $31,200/yr ? Evaluate</span>
+      </div>
+      <div class="consol-deadline">Evaluate by: <span class="deadline-amber">Jun 30, 2026</span></div>
+    </div>
+
+  </div>
+
+  <!-- SAVINGS BANNER -->
+  <div class="savings-banner" role="region" aria-label="Total estimated savings">
+    <div class="savings-left">
+      <div class="savings-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 3C7.1 3 4 6.1 4 10c0 2.4 1.1 4.5 2.8 5.9V18h8.4v-2.1C16.9 14.5 18 12.4 18 10c0-3.9-3.1-7-7-7z" stroke="#22c55e" stroke-width="1.4" stroke-linejoin="round" fill="none"/><path d="M8 10h6M11 7.5v5" stroke="#22c55e" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </div>
+      <div class="savings-text">
+        <h3>Total Identified Savings Opportunity</h3>
+        <p>Confirmed: $37,200/yr &nbsp;·&nbsp; Potential: +$31,200/yr (Tenable/Claroty overlap)</p>
+      </div>
+    </div>
+    <div class="savings-amount">$68,400<span>/ yr potential</span></div>
+  </div>
+
+</main>
+</div><!-- end #tab-dashboard -->
+
+<!-- ═══ TAB: DATA ═══ -->
+<div id="tab-data" role="tabpanel" aria-labelledby="btn-data">
+<div class="data-page">
+
+  <div class="data-header">
+    <div>
+      <h2>Contract Data
+        <span class="data-updated-badge" id="data-updated-badge">DASHBOARD UPDATED</span>
+      </h2>
+      <p>Editable contract registry. Changes reflect immediately in the Dashboard → Risk Register.</p>
+    </div>
+    <div class="data-totals">
+      <div class="data-total-stat">
+        <div class="data-total-val" id="total-commitment">$385,800</div>
+        <div class="data-total-lbl">Total Annual Commitment</div>
+      </div>
+      <div class="data-total-stat">
+        <div class="data-total-val" style="color:var(--red);" id="missing-owners-count">4</div>
+        <div class="data-total-lbl">Missing Owners</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-toolbar">
+    <button class="toolbar-btn add" onclick="addContract()" aria-label="Add new contract row">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Add Contract
+    </button>
+    <button class="toolbar-btn sync" id="sync-btn" onclick="syncToDb()" aria-label="Simulate sync to database">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M2 6.5A4.5 4.5 0 0 1 6.5 2a4.5 4.5 0 0 1 4.243 3M11 6.5A4.5 4.5 0 0 1 6.5 11a4.5 4.5 0 0 1-4.243-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9.5 5l1.5-2 1.5 2M3.5 8L2 10 .5 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Sync to DB
+    </button>
+    <span style="font-size:11px;color:var(--text-muted);font-family:var(--mono);margin-left:4px;">In production, Add/Delete also writes to spendops.db</span>
+  </div>
+
+  <div class="data-panel">
+    <div class="data-table-wrap">
+      <table class="data-table" aria-label="Editable contract data">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Product / Contract</th>
+            <th scope="col">Vendor</th>
+            <th scope="col">Department</th>
+            <th scope="col">Renewal Date</th>
+            <th scope="col">Annual Cost ($)</th>
+            <th scope="col">Owner</th>
+            <th scope="col">Auto-Renew</th>
+            <th scope="col" style="width:40px;"></th>
+          </tr>
+        </thead>
+        <tbody id="data-tbody"></tbody>
+      </table>
+    </div>
+    <div class="data-note">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><circle cx="6" cy="6" r="5" stroke="#64748b" stroke-width="1.2" fill="none"/><path d="M6 5.5v3M6 4v.3" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Click any cell to edit · Changes update Dashboard Risk Register in real time · Add/Delete rows above
+    </div>
+  </div>
+
+</div>
+</div><!-- end #tab-data -->
+
+<!-- FOOTER -->
+<footer class="footer" role="contentinfo">
+  <div class="footer-left">
+    <span>Nexagen</span>
+    <div class="footer-sep" aria-hidden="true"></div>
+    <span>IT/OT Department</span>
+    <div class="footer-sep" aria-hidden="true"></div>
+    <span>FY2026</span>
+    <div class="footer-sep" aria-hidden="true"></div>
+    <span id="footer-date">Generated March 7, 2026</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="font-size:10px;letter-spacing:0.04em;">SPENDOPS AI INTELLIGENCE PLATFORM</span>
+    <div class="footer-sep" aria-hidden="true"></div>
+    <span style="font-size:10px;">CONFIDENTIAL — INTERNAL USE ONLY</span>
+  </div>
+</footer>
+
+<script>
+'use strict';
+
+/* ══════════════════════════════════════
+   DATA SOURCE — single source of truth
+══════════════════════════════════════ */
+var contracts = [
+  { id:'crowdstrike',  name:'CrowdStrike Falcon',          vendor:'CrowdStrike',  dept:'IT/OT', renewalDate:'2026-03-01', annualCost:65000,  owner:'',             autoRenew:true,  note:'EDR — OT/IT Endpoints' },
+  { id:'claroty',      name:'Claroty xDome OT Security',   vendor:'Claroty',      dept:'IT/OT', renewalDate:'2026-03-15', annualCost:54000,  owner:'',             autoRenew:true,  note:'OT Security Platform — Critical' },
+  { id:'servicenow',   name:'ServiceNow ITSM',             vendor:'ServiceNow',   dept:'IT/OT', renewalDate:'2026-04-10', annualCost:36000,  owner:'VACANT',       autoRenew:false, note:'ITSM Platform — Manual Renewal' },
+  { id:'manageengine', name:'ManageEngine OpManager',      vendor:'ManageEngine', dept:'IT/OT', renewalDate:'2026-05-18', annualCost:8400,   owner:'',             autoRenew:true,  note:'Network Monitoring — Overlap w/ SolarWinds' },
+  { id:'azure',        name:'Microsoft Azure',             vendor:'Microsoft',    dept:'IT/OT', renewalDate:'2026-06-01', annualCost:120000, owner:'',             autoRenew:true,  note:'Cloud Infrastructure — Core' },
+  { id:'tenable',      name:'Tenable OT Security',        vendor:'Tenable',      dept:'IT/OT', renewalDate:'2026-06-30', annualCost:31200,  owner:'Ana Reyes',    autoRenew:false, note:'OT Vuln Scanning — Evaluate Overlap w/ Claroty' },
+  { id:'splunk',       name:'Splunk Enterprise',           vendor:'Splunk',       dept:'IT/OT', renewalDate:'2026-09-01', annualCost:42000,  owner:'Maria Santos', autoRenew:true,  note:'SIEM — OT Historian + IT Event Logs' },
+  { id:'solarwinds',   name:'SolarWinds NPM',              vendor:'SolarWinds',   dept:'IT/OT', renewalDate:'2026-11-05', annualCost:14400,  owner:'James Okafor', autoRenew:true,  note:'Network Performance Monitoring' },
+  { id:'veeam',        name:'Veeam Backup & Replication',  vendor:'Veeam',        dept:'IT/OT', renewalDate:'2026-12-01', annualCost:9600,   owner:'Carlos Rivera',autoRenew:true,  note:'Data Protection — MES & Historian VMs' },
+  { id:'zoom',         name:'Zoom Business',               vendor:'Zoom',         dept:'IT/OT', renewalDate:'2026-10-01', annualCost:4800,   owner:'Maria Santos', autoRenew:true,  note:'Collaboration — 20 Seats' },
+];
+
+var BASE_DATE = new Date('2026-03-06');
+
+/* ══════════════════════════════════════
+   TABS
+══════════════════════════════════════ */
+function switchTab(tab) {
+  document.getElementById('tab-dashboard').style.display = tab === 'dashboard' ? 'block' : 'none';
+  document.getElementById('tab-data').style.display      = tab === 'data'      ? 'block' : 'none';
+  document.getElementById('btn-dashboard').classList.toggle('active', tab === 'dashboard');
+  document.getElementById('btn-data').classList.toggle('active', tab === 'data');
+  document.getElementById('btn-dashboard').setAttribute('aria-selected', tab === 'dashboard');
+  document.getElementById('btn-data').setAttribute('aria-selected', tab === 'data');
+  if (tab === 'data') renderDataTable();
+}
+
+/* ══════════════════════════════════════
+   TOAST NOTIFICATIONS
+══════════════════════════════════════ */
+function showToast(label) {
+  var container = document.getElementById('toast-container');
+  var now = new Date();
+  var time = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+
+  var toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.setAttribute('role', 'alert');
+  toast.innerHTML =
+    '<span class="toast-icon" aria-hidden="true">' +
+      '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="#22c55e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+    '</span>' +
+    '<div class="toast-body">' +
+      '<span class="toast-label">Action logged</span>' +
+      '<span class="toast-sub">' + escHtml(label) + ' &nbsp;·&nbsp; ' + time + '</span>' +
+    '</div>' +
+    '<button class="toast-close" onclick="dismissToast(this.parentElement)" aria-label="Dismiss notification">&times;</button>';
+
+  container.appendChild(toast);
+
+  // Auto-dismiss after 4s
+  setTimeout(function() { dismissToast(toast); }, 4000);
+}
+
+function dismissToast(el) {
+  if (!el || !el.parentElement) return;
+  el.classList.add('out');
+  setTimeout(function() { if (el.parentElement) el.parentElement.removeChild(el); }, 220);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ══════════════════════════════════════
+   NARRATIVE TICKER TOGGLE
+══════════════════════════════════════ */
+function toggleNarrative() {
+  var bar   = document.getElementById('ticker-bar');
+  var panel = document.getElementById('narrative-expanded');
+  var expanded = panel.classList.toggle('open');
+  bar.setAttribute('aria-expanded', expanded);
+}
+
+/* ══════════════════════════════════════
+   ADD / DELETE CONTRACTS
+══════════════════════════════════════ */
+var _newIdCounter = 0;
+
+function addContract() {
+  _newIdCounter++;
+  contracts.push({
+    id: 'new-' + _newIdCounter,
+    name: '', vendor: '', dept: 'IT/OT',
+    renewalDate: '', annualCost: 0, owner: '',
+    autoRenew: false, note: ''
+  });
+  renderDataTable();
+  renderRiskTable();
+  updateDataStats();
+  setTimeout(function() {
+    var tbody = document.getElementById('data-tbody');
+    if (!tbody) return;
+    var lastRow = tbody.lastElementChild;
+    if (lastRow) {
+      lastRow.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      var first = lastRow.querySelector('.cell-input');
+      if (first) first.focus();
+    }
+  }, 60);
+}
+
+function deleteContract(id) {
+  var idx = contracts.findIndex(function(c) { return c.id === id; });
+  if (idx === -1) return;
+  var name = contracts[idx].name || 'contract';
+  contracts.splice(idx, 1);
+  renderDataTable();
+  renderRiskTable();
+  updateDataStats();
+  showToast('Deleted: ' + name);
+}
+
+function syncToDb() {
+  var btn = document.getElementById('sync-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Syncing\u2026'; }
+  setTimeout(function() {
+    showToast('Simulated: ' + contracts.length + ' records written to spendops.db');
+    if (btn) { btn.disabled = false; btn.innerHTML =
+      '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M2 6.5A4.5 4.5 0 0 1 6.5 2a4.5 4.5 0 0 1 4.243 3M11 6.5A4.5 4.5 0 0 1 6.5 11a4.5 4.5 0 0 1-4.243-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9.5 5l1.5-2 1.5 2M3.5 8L2 10 .5 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Sync to DB';
+    }
+  }, 700);
+}
+
+/* ══════════════════════════════════════
+   ACTION BUTTONS
+══════════════════════════════════════ */
+function logAction(btn) {
+  if (btn.classList.contains('logged')) return;
+  var label = btn.textContent.trim();
+  btn.classList.add('logged');
+  btn.setAttribute('disabled', true);
+  btn.setAttribute('aria-pressed', 'true');
+  showToast(label);
+}
+
+/* ══════════════════════════════════════
+   SHOW MORE TOGGLE
+══════════════════════════════════════ */
+function toggleExpand(btn) {
+  var body = btn.previousElementSibling;
+  var expanded = body.classList.toggle('expanded');
+  btn.textContent = expanded ? 'Show less' : 'Show more';
+  btn.setAttribute('aria-expanded', expanded);
+}
+
+/* ══════════════════════════════════════
+   DAYS CALCULATION
+══════════════════════════════════════ */
+function daysUntil(dateStr) {
+  var d = new Date(dateStr);
+  return Math.round((d - BASE_DATE) / 86400000);
+}
+
+function getUrgencyClass(days, owner) {
+  if (days <= 0) return 'overdue';
+  if (days <= 14) return 'critical';
+  if (days <= 60 || !owner || owner === 'VACANT') return 'amber';
+  return 'normal';
+}
+
+/* ══════════════════════════════════════
+   RISK TABLE RENDERER
+══════════════════════════════════════ */
+function renderRiskTable() {
+  var tbody = document.getElementById('risk-tbody');
+  if (!tbody) return;
+
+  // Sort: overdue first, then by days asc
+  var sorted = contracts.slice().sort(function(a,b) {
+    return daysUntil(a.renewalDate) - daysUntil(b.renewalDate);
+  });
+
+  var html = '';
+  sorted.forEach(function(c) {
+    var days = daysUntil(c.renewalDate);
+    var urgency = getUrgencyClass(days, c.owner);
+    var rowClass = urgency === 'overdue' || urgency === 'critical' ? 'row-critical' :
+                   urgency === 'amber' ? 'row-amber' : 'row-normal';
+
+    var daysLabel = days < 0 ? 'OVERDUE' : days + ' days';
+    var daysClass = urgency === 'overdue' || urgency === 'critical' ? 'd-red' :
+                    urgency === 'amber' ? 'd-amber' : 'd-dim';
+
+    var urgencyBadge = urgency === 'overdue'  ? '<span class="urgency-badge u-overdue">PAST DUE</span>' :
+                       urgency === 'critical' ? '<span class="urgency-badge u-critical">CRITICAL</span>' :
+                       urgency === 'amber'    ? '<span class="urgency-badge u-amber">HIGH</span>' :
+                       days > 180             ? '<span class="urgency-badge u-medium">MEDIUM</span>' :
+                                                '<span class="urgency-badge u-high">HIGH</span>';
+
+    var ownerHtml;
+    if (!c.owner || c.owner === '') {
+      ownerHtml = '<div class="owner-cell"><span class="owner-missing">NO OWNER</span>' +
+                  (c.autoRenew ? '<span class="auto-badge">AUTO</span>' : '') + '</div>';
+    } else if (c.owner === 'VACANT') {
+      ownerHtml = '<div class="owner-cell"><span class="owner-vacant">VACANT</span></div>';
+    } else {
+      ownerHtml = '<div class="owner-cell" style="color:var(--text-dim);">' + escHtml(c.owner) + '</div>';
+    }
+
+    html +=
+      '<tr class="' + rowClass + '">' +
+        '<td><div class="product-name">' + escHtml(c.name) + '</div><div class="product-cost">' + escHtml(c.note) + '</div></td>' +
+        '<td style="font-family:var(--mono);font-size:12px;color:' + (urgency==='overdue'||urgency==='critical'?'var(--red)':'var(--text-dim)') + ';">' + formatDate(c.renewalDate) + '</td>' +
+        '<td style="text-align:center;"><span class="days-col ' + daysClass + '">' + daysLabel + '</span></td>' +
+        '<td>' + urgencyBadge + '</td>' +
+        '<td>' + ownerHtml + '</td>' +
+        '<td style="text-align:right;font-family:var(--mono);font-weight:700;font-size:13px;color:var(--text);">$' + c.annualCost.toLocaleString() + '</td>' +
+      '</tr>';
+  });
+
+  tbody.innerHTML = html;
+  document.getElementById('contract-count').textContent = contracts.length + ' contracts';
+}
+
+function formatDate(dateStr) {
+  var d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+}
+
+/* ══════════════════════════════════════
+   DATA TABLE RENDERER + INLINE EDITING
+══════════════════════════════════════ */
+function renderDataTable() {
+  var tbody = document.getElementById('data-tbody');
+  if (!tbody) return;
+
+  var html = '';
+  contracts.forEach(function(c, i) {
+    html +=
+      '<tr>' +
+        '<td style="font-family:var(--mono);font-size:11px;color:var(--text-muted);text-align:center;">' + (i+1) + '</td>' +
+        '<td><input class="cell-input" data-id="' + c.id + '" data-field="name" value="' + escAttr(c.name) + '" aria-label="Contract name"></td>' +
+        '<td><input class="cell-input" data-id="' + c.id + '" data-field="vendor" value="' + escAttr(c.vendor) + '" aria-label="Vendor name"></td>' +
+        '<td><input class="cell-input" data-id="' + c.id + '" data-field="dept" value="' + escAttr(c.dept) + '" aria-label="Department"></td>' +
+        '<td><input class="cell-input date" type="date" data-id="' + c.id + '" data-field="renewalDate" value="' + c.renewalDate + '" aria-label="Renewal date"></td>' +
+        '<td><input class="cell-input cost" type="number" data-id="' + c.id + '" data-field="annualCost" value="' + c.annualCost + '" min="0" step="100" aria-label="Annual cost"></td>' +
+        '<td><input class="cell-input" data-id="' + c.id + '" data-field="owner" value="' + escAttr(c.owner) + '" placeholder="Unassigned" aria-label="Contract owner"></td>' +
+        '<td style="text-align:center;">' +
+          '<input type="checkbox" data-id="' + c.id + '" data-field="autoRenew" ' + (c.autoRenew?'checked':'') + ' aria-label="Auto-renew enabled" style="accent-color:var(--amber);cursor:pointer;width:14px;height:14px;">' +
+        '</td>' +
+        '<td style="text-align:center;">' +
+          '<button class="del-btn" onclick="deleteContract(\'' + escAttr(c.id) + '\')" aria-label="Delete ' + escAttr(c.name||'contract') + '">' +
+            '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M2 3.5h9M5 3.5V2.5h3v1M10 3.5l-.7 7H3.7l-.7-7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 6v3M7.5 6v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
+          '</button>' +
+        '</td>' +
+      '</tr>';
+  });
+  tbody.innerHTML = html;
+
+  // Attach change listeners
+  tbody.querySelectorAll('.cell-input').forEach(function(input) {
+    input.addEventListener('input', onCellChange);
+    input.addEventListener('change', onCellChange);
+  });
+  tbody.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+    cb.addEventListener('change', onCellChange);
+  });
+
+  updateDataStats();
+}
+
+function escAttr(s) {
+  return String(s || '').replace(/"/g, '&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function onCellChange(e) {
+  var input = e.target;
+  var id    = input.dataset.id;
+  var field = input.dataset.field;
+  var value = input.type === 'checkbox' ? input.checked :
+              input.type === 'number'   ? Number(input.value) : input.value;
+
+  // Update contracts array
+  var contract = contracts.find(function(c) { return c.id === id; });
+  if (!contract) return;
+  contract[field] = value;
+
+  // Visual feedback on changed cell
+  input.classList.add('cell-changed');
+  setTimeout(function() { input.classList.remove('cell-changed'); }, 1500);
+
+  // Re-render risk table
+  renderRiskTable();
+  updateDataStats();
+
+  // Flash "DASHBOARD UPDATED" badge
+  var badge = document.getElementById('data-updated-badge');
+  if (badge) {
+    badge.classList.add('visible');
+    clearTimeout(badge._timer);
+    badge._timer = setTimeout(function() { badge.classList.remove('visible'); }, 2500);
+  }
+}
+
+function updateDataStats() {
+  var total = contracts.reduce(function(s,c) { return s + (c.annualCost||0); }, 0);
+  var missing = contracts.filter(function(c) { return !c.owner || c.owner === '' || c.owner === 'VACANT'; }).length;
+
+  var tv = document.getElementById('total-commitment');
+  var mv = document.getElementById('missing-owners-count');
+  if (tv) tv.textContent = '$' + total.toLocaleString();
+  if (mv) mv.textContent = missing;
+}
+
+/* ═════════════════════════════════���════
+   CHART.JS — Spend by Category
+══════════════════════════════════════ */
+(function() {
+  var ctx = document.getElementById('categoryChart');
+  if (!ctx) return;
+
+  var categories   = ['Hardware','Software & Licenses','Personnel','Cloud & Infra','Security & Compliance','Support & Outsourcing'];
+  var actualYTD    = [41500, 59799, 55100, 38700, 31800, 6600];
+  var forecastEOY  = [415000, 239196, 236900, 154800, 127200, 26400];
+  var gridColor    = 'rgba(30,42,58,1)';
+  var textColor    = '#64748b';
+
+  Chart.defaults.color = textColor;
+  Chart.defaults.font.family = "'Fira Code', monospace";
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: categories,
+      datasets: [
+        { label:'Actual YTD',  data:actualYTD,   backgroundColor:'rgba(59,130,246,0.75)', borderColor:'rgba(59,130,246,0.9)', borderWidth:1, borderRadius:3, borderSkipped:false },
+        { label:'Forecast EOY',data:forecastEOY, backgroundColor:'rgba(96,165,250,0.18)', borderColor:'rgba(96,165,250,0.5)', borderWidth:1, borderRadius:3, borderSkipped:false, borderDash:[4,3] },
+      ],
+    },
+    options: {
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      animation:{ duration:900, easing:'easeInOutQuart' },
+      plugins: {
+        legend:{ display:false },
+        tooltip:{
+          backgroundColor:'#111827', borderColor:'#1e2a3a', borderWidth:1,
+          titleColor:'#e2e8f0', bodyColor:'#94a3b8',
+          titleFont:{ family:"'Fira Code', monospace", size:11, weight:'600' },
+          bodyFont:{ family:"'Fira Code', monospace", size:11 }, padding:10,
+          callbacks:{ label:function(c){ return '  '+c.dataset.label+': $'+c.parsed.x.toLocaleString(); } },
+        },
+      },
+      scales:{
+        x:{ grid:{color:gridColor,lineWidth:1}, border:{color:'transparent'},
+            ticks:{ color:textColor, font:{family:"'Fira Code', monospace",size:10}, callback:function(v){ return '$'+(v>=1000?Math.round(v/1000)+'K':v); }, maxTicksLimit:5 } },
+        y:{ grid:{display:false}, border:{color:'transparent'},
+            ticks:{ color:'#8897ae', font:{family:"'Fira Sans', sans-serif",size:11}, padding:4 } },
+      },
+    },
+  });
+})();
+
+/* ══════════════════════════════════════
+   THEME TOGGLE
+══════════════════════════════════════ */
+function toggleTheme() {
+  var html = document.documentElement;
+  var isLight = html.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    html.removeAttribute('data-theme');
+    document.getElementById('theme-icon-moon').style.display = '';
+    document.getElementById('theme-icon-sun').style.display = 'none';
+    document.getElementById('theme-label').textContent = 'Light';
+    try { localStorage.setItem('spendops-theme', 'dark'); } catch(e){}
+  } else {
+    html.setAttribute('data-theme', 'light');
+    document.getElementById('theme-icon-moon').style.display = 'none';
+    document.getElementById('theme-icon-sun').style.display = '';
+    document.getElementById('theme-label').textContent = 'Dark';
+    try { localStorage.setItem('spendops-theme', 'light'); } catch(e){}
+  }
+}
+// Restore saved theme on load
+(function() {
+  try {
+    var saved = localStorage.getItem('spendops-theme');
+    if (saved === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.getElementById('theme-icon-moon').style.display = 'none';
+      document.getElementById('theme-icon-sun').style.display = '';
+      document.getElementById('theme-label').textContent = 'Dark';
+    }
+  } catch(e) {}
+})();
+
+/* ══════════════════════════════════════
+   DATES + INIT
+══════════════════════════════════════ */
+(function() {
+  var now = new Date();
+  var long  = now.toLocaleDateString('en-US',{month:'long', day:'numeric', year:'numeric'});
+  var short = now.toLocaleDateString('en-US',{month:'short', day:'numeric', year:'numeric'});
+  var fd = document.getElementById('footer-date');
+  var gd = document.getElementById('gen-date-display');
+  if (fd) fd.textContent = 'Generated ' + long;
+  if (gd) gd.textContent = 'Generated ' + short;
+
+  // Initial render
+  renderRiskTable();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "Dell Technologies",
+    "website": "dell.com"
+  },
+  {
+    "id": 2,
+    "name": "Microsoft",
+    "website": "microsoft.com"
+  },
+  {
+    "id": 3,
+    "name": "Cisco Systems",
+    "website": "cisco.com"
+  },
+  {
+    "id": 4,
+    "name": "AWS",
+    "website": "aws.amazon.com"
+  },
+  {
+    "id": 5,
+    "name": "CrowdStrike",
+    "website": "crowdstrike.com"
+  },
+  {
+    "id": 6,
+    "name": "Claroty",
+    "website": "claroty.com"
+  },
+  {
+    "id": 7,
+    "name": "Rockwell Automation",
+    "website": "rockwellautomation.com"
+  },
+  {
+    "id": 8,
+    "name": "Tenable",
+    "website": "tenable.com"
+  },
+  {
+    "id": 9,
+    "name": "ServiceNow",
+    "website": "servicenow.com"
+  },
+  {
+    "id": 10,
+    "name": "Veeam",
+    "website": "veeam.com"
+  },
+  {
+    "id": 11,
+    "name": "SolarWinds",
+    "website": "solarwinds.com"
+  },
+  {
+    "id": 12,
+    "name": "ManageEngine",
+    "website": "manageengine.com"
+  },
+  {
+    "id": 13,
+    "name": "Siemens",
+    "website": "siemens.com"
+  },
+  {
+    "id": 14,
+    "name": "Zoom",
+    "website": "zoom.us"
+  },
+  {
+    "id": 15,
+    "name": "Splunk",
+    "website": "splunk.com"
+  },
+  {
+    "id": 16,
+    "name": "IBM",
+    "website": "ibm.com"
+  },
+  {
+    "id": 17,
+    "name": "Azure",
+    "website": "azure.microsoft.com"
+  },
+  {
+    "id": 18,
+    "name": "Fortinet",
+    "website": "fortinet.com"
+  }
+]

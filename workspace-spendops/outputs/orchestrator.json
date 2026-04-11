@@ -1,0 +1,223 @@
+{
+  "consolidated_action_queue": [
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "action": "Renew IT/OT Manager salary + benefits subscription",
+      "renewal_date": "2026-10-01",
+      "term": null,
+      "auto_renew": true,
+      "annual_cost": 4800.0,
+      "notes": "20 seats, recurring monthly",
+      "last_review_date": null
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "action": "Cancel legacy IBM Maximo (legacy) subscription",
+      "renewal_date": "2026-05-01",
+      "term": null,
+      "auto_renew": false,
+      "annual_cost": 28800.0,
+      "notes": "Asset migration to SAP ongoing; may be cancellable",
+      "last_review_date": null
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "action": "Subscribe to AWS validation workloads and S3 backup (opex)",
+      "renewal_date": "2026-10-01",
+      "term": null,
+      "auto_renew": true,
+      "annual_cost": 28800.0,
+      "notes": "Supports cloud migration; recurring monthly",
+      "last_review_date": null
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "action": "Subscribe to Azure dev/test and M365 compute (opex)",
+      "renewal_date": "2026-10-01",
+      "term": null,
+      "auto_renew": true,
+      "annual_cost": 28800.0,
+      "notes": "Supports hybrid cloud; recurring monthly",
+      "last_review_date": null
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "action": "Subscribe to Claroty xDome OT Security (opex)",
+      "renewal_date": "2026-10-01",
+      "term": null,
+      "auto_renew": true,
+      "annual_cost": 7200.0,
+      "notes": "OT security platform; recurring monthly",
+      "last_review_date": null
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "action": "Subscribe to Tenable OT Security (opex)",
+      "renewal_date": "2026-10-01",
+      "term": null,
+      "auto_renew": true,
+      "annual_cost": 7200.0,
+      "notes": "Vulnerability management; recurring monthly",
+      "last_review_date": null
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "action": "Subscribe to Splunk Enterprise SIEM (opex)",
+      "renewal_date": "2026-10-01",
+      "term": null,
+      "auto_renew": true,
+      "annual_cost": 14400.0,
+      "notes": "Log management and analytics; recurring monthly",
+      "last_review_date": null
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "action": "Subscribe to MSP Tier 1/2 help desk coverage (opex)",
+      "renewal_date": "2026-10-01",
+      "term": null,
+      "auto_renew": true,
+      "annual_cost": 9600.0,
+      "notes": "External support for OT systems and infrastructure",
+      "last_review_date": null
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "action": "Subscribe to OT integration consultant (project-based, opex)",
+      "renewal_date": null,
+      "term": null,
+      "auto_renew": false,
+      "annual_cost": 0.0,
+      "notes": "Project-based security and integration support",
+      "last_review_date": null
+    },
+    {
+      "department_id": 1,
+      "category_id": 3,
+      "vendor_id": null,
+      "action": "Subscribe to external IT audit and penetration testing (opex)",
+      "renewal_date": null,
+      "term": null,
+      "auto_renew": false,
+      "annual_cost": 0.0,
+      "notes": "Annual compliance validation and red teaming",
+      "last_review_date": null
+    },
+    {
+      "department_id": 1,
+      "category_id": 4,
+      "vendor_id": 4,
+      "subscription_id": null,
+      "description": "AWS S3 backup + validation workloads (opex)",
+      "capex_opex": "opex",
+      "is_recurring": true,
+      "annual_cost": 0.0,
+      "notes": "Cloud infrastructure support; recurring monthly"
+    },
+    {
+      "department_id": 1,
+      "category_id": 4,
+      "vendor_id": 4,
+      "subscription_id": null,
+      "description": "Azure dev/test and M365 compute (opex)",
+      "capex_opex": "opex",
+      "is_recurring": true,
+      "annual_cost": 0.0,
+      "notes": "Hybrid cloud infrastructure; recurring monthly"
+    },
+    {
+      "department_id": 1,
+      "category_id": 5,
+      "vendor_id": 4,
+      "subscription_id": 5,
+      "description": "Claroty xDome OT Security (10 seats)",
+      "capex_opex": "opex",
+      "is_recurring": true,
+      "annual_cost": 7200.0,
+      "notes": "OT security for 10 endpoints; recurring monthly"
+    },
+    {
+      "department_id": 1,
+      "category_id": 5,
+      "vendor_id": 4,
+      "subscription_id": 11,
+      "description": "Tenable OT Security (project-based)",
+      "capex_opex": "opex",
+      "is_recurring": true,
+      "annual_cost": 7200.0,
+      "notes": "Vulnerability management project support"
+    },
+    {
+      "department_id": 1,
+      "category_id": 5,
+      "vendor_id": 4,
+      "subscription_id": 12,
+      "description": "Splunk Enterprise SIEM (annual audit)",
+      "capex_opex": "opex",
+      "is_recurring": false,
+      "annual_cost": 0.0,
+      "notes": "Annual compliance assessment"
+    },
+    {
+      "department_id": 1,
+      "category_id": 5,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "GxP compliance assessments",
+      "capex_opex": "opex",
+      "is_recurring": false,
+      "annual_cost": 0.0,
+      "notes": "Regulatory audits"
+    },
+    {
+      "department_id": 1,
+      "category_id": 6,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "MSP Tier 1/2 help desk coverage (project-based)",
+      "capex_opex": "opex",
+      "is_recurring": true,
+      "annual_cost": 0.0,
+      "notes": "External support for OT and IT infrastructure"
+    },
+    {
+      "department_id": 1,
+      "category_id": 6,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "OT integration consultant (project-based, opex)",
+      "capex_opex": "opex",
+      "is_recurring": false,
+      "annual_cost": 0.0,
+      "notes": "Project-based security and integration support"
+    },
+    {
+      "department_id": 1,
+      "category_id": 6,
+      "vendor_id": null,
+      "subscription_id": null,
+      "description": "External IT audit and penetration testing (project-based, opex)",
+      "capex_opex": "opex",
+      "is_recurring": false,
+      "annual_cost": 0.0,
+      "notes": "Annual compliance validation and red teaming"
+    }
+  ]
+}
