@@ -26,6 +26,8 @@ env/
 # Database (local only — recreate with init_db.py + mock_data.sql)
 *.db
 *.sqlite3
+# ...except the bundled seed DB used by Vercel on cold start
+!workspace-spendops/spendops_seed.db
 
 # Generated pipeline outputs (re-created by Refresh Analysis or run_pipeline.py)
 workspace-spendops/data/

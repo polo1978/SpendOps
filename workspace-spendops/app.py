@@ -33,19 +33,46 @@ except ImportError:
     pass
 
 # ---------------------------------------------------------------------------
-# Paths
+# Paths — Vercel-aware
+# Vercel's deployment filesystem is read-only; only /tmp is writable.
+# We detect Vercel via the VERCEL env var and redirect all mutable paths there.
+# On first cold start we copy the pre-seeded DB from the deployment bundle.
 # ---------------------------------------------------------------------------
+import shutil
+
 WORKSPACE = Path(__file__).parent
-DB_PATH = WORKSPACE / "spendops.db"
-OUTPUTS_DIR = WORKSPACE / "outputs"
-DATA_DIR = WORKSPACE / "data"
 TEMPLATES_DIR = WORKSPACE / "templates"
-UPLOADS_DIR = WORKSPACE / "uploads"
 SCRIPTS_DIR = WORKSPACE / "scripts"
+
+IS_VERCEL = bool(os.environ.get("VERCEL"))
+
+if IS_VERCEL:
+    _tmp = Path("/tmp/spendops")
+    _tmp.mkdir(exist_ok=True)
+    DB_PATH    = _tmp / "spendops.db"
+    OUTPUTS_DIR = _tmp / "outputs"
+    DATA_DIR   = _tmp / "data"
+    UPLOADS_DIR = _tmp / "uploads"
+else:
+    DB_PATH    = WORKSPACE / "spendops.db"
+    OUTPUTS_DIR = WORKSPACE / "outputs"
+    DATA_DIR   = WORKSPACE / "data"
+    UPLOADS_DIR = WORKSPACE / "uploads"
 
 OUTPUTS_DIR.mkdir(exist_ok=True)
 DATA_DIR.mkdir(exist_ok=True)
 UPLOADS_DIR.mkdir(exist_ok=True)
+
+# On Vercel: seed the DB from the bundled spendops_seed.db on first cold start
+if IS_VERCEL and not DB_PATH.exists():
+    seed = WORKSPACE / "spendops_seed.db"
+    if seed.exists():
+        shutil.copy2(str(seed), str(DB_PATH))
+    else:
+        # Fallback: initialise an empty schema
+        sys.path.insert(0, str(SCRIPTS_DIR))
+        from init_db import init as _init_db
+        _init_db(str(DB_PATH))
 
 # ---------------------------------------------------------------------------
 # Auth (optional — only active when SPENDOPS_AUTH_PASSWORD is set)
