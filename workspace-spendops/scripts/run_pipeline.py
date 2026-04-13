@@ -4,6 +4,7 @@ SpendOps - Full pipeline runner
 Runs all agents in order: read_db -> calc_forecast -> all specialists -> orchestrator -> narrative -> dashboard.
 
 Usage: py scripts/run_pipeline.py --department "IT/OT" --cycle FY2026 --db ./spendops.db --output-dir ./outputs/
+       py scripts/run_pipeline.py --department "IT/OT" --cycle FY2026 --ai-backend lmstudio  # use local LM Studio
 """
 
 import argparse
@@ -11,6 +12,13 @@ import subprocess
 import sys
 import os
 from datetime import date
+
+# Load .env if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"))
+except ImportError:
+    pass
 
 AGENTS_IN_ORDER = [
     "renewal_risk",
@@ -38,6 +46,7 @@ def main():
     parser.add_argument("--db", default="./spendops.db")
     parser.add_argument("--output-dir", default="./outputs/")
     parser.add_argument("--today", default=date.today().strftime("%Y-%m-%d"))
+    parser.add_argument("--ai-backend", choices=["openrouter", "lmstudio"], default="openrouter")
     args = parser.parse_args()
 
     dept = args.department
@@ -45,6 +54,7 @@ def main():
     today = args.today
     db = os.path.abspath(args.db)
     out = os.path.abspath(args.output_dir)
+    ai_backend = args.ai_backend
     scripts_dir = os.path.dirname(os.path.abspath(__file__))
     workspace_dir = os.path.dirname(scripts_dir)
     data_dir = os.path.join(workspace_dir, "data")
@@ -79,7 +89,8 @@ def main():
              "--data-dir", data_dir,
              "--forecast-summary", os.path.join(out, "forecast_summary.json"),
              "--prior-outputs-dir", out,
-             "--output", output_path],
+             "--output", output_path,
+             "--ai-backend", ai_backend],
             f"Agent: {agent}"
         )
 

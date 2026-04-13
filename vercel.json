@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "workspace-spendops/app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "workspace-spendops/app.py"
+    }
+  ]
+}

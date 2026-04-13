@@ -1,4 +1,51 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Claude Code
 .claude/
+.claude/worktrees/
+
+# Node (not used but common)
 node_modules/
 .next/
-.DS_Store
+
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Env / secrets
+.env
+*.env
+
+# Database (local only — recreate with init_db.py + mock_data.sql)
+*.db
+*.sqlite3
+
+# Generated pipeline outputs (re-created by Refresh Analysis or run_pipeline.py)
+workspace-spendops/data/
+workspace-spendops/outputs/
+workspace-spendops/uploads/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Private / legacy files
+EndGoal.txt
+SETUP_GUIDE.md
+First_trial/
+workspace-spendops/AGENTS.md
+workspace-spendops/HEARTBEAT.md
+workspace-spendops/IDENTITY.md
+workspace-spendops/SOUL.md
+workspace-spendops/SPENDOPS_PROJECT_BRIEF.md
+workspace-spendops/TOOLS.md
+workspace-spendops/USER.md
+workspace-spendops/skills/
