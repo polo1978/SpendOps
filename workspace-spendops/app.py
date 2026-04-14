@@ -146,7 +146,7 @@ async def serve_dashboard():
         html_path = OUTPUTS_DIR / "dashboard.html"
     if not html_path.exists():
         return HTMLResponse("<h1>Dashboard not found. Run the pipeline first.</h1>", status_code=404)
-    return HTMLResponse(html_path.read_text())
+    return HTMLResponse(html_path.read_text(encoding="utf-8"))
 
 
 # ---------------------------------------------------------------------------
@@ -159,7 +159,7 @@ async def get_results():
                  "anomaly_detect", "consolidation_suggest", "orchestrator", "narrative_brief"]:
         p = OUTPUTS_DIR / f"{name}.json"
         if p.exists():
-            result[name] = json.loads(p.read_text())
+            result[name] = json.loads(p.read_text(encoding="utf-8"))
     return result
 
 
