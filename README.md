@@ -70,6 +70,81 @@ The dashboard loads with the last pipeline output. To run a fresh AI analysis, c
 
 ---
 
+## Running on Windows (PC or Server)
+
+Windows requires a few small differences from the standard quick start above.
+
+### 1. Download the code (no Git required)
+
+Go to the repository on GitHub, click the green **Code** button, and select **Download ZIP**.  
+Extract the ZIP anywhere — e.g. `C:\Users\YourName\Documents\SpendOps`.
+
+> If you prefer Git: open **Control Panel → Credential Manager → Windows Credentials**, delete any stored `github.com` entry, then run `git clone https://github.com/polo1978/SpendOps.git`. For a public repo no credentials are needed, but stale cached tokens cause failures.
+
+### 2. Open a Command Prompt in the right folder
+
+```
+cd "C:\path\to\SpendOps-main\workspace-spendops"
+```
+
+### 3. Install dependencies
+
+```
+pip install -r requirements.txt
+```
+
+### 4. Configure your API key
+
+```
+copy .env.example .env
+```
+
+Open `.env` in Notepad and set your key:
+
+```
+OPENROUTER_API_KEY=sk-or-v1-...
+```
+
+### 5. Create and seed the database
+
+`sqlite3` is not installed on Windows by default. Use this Python one-liner instead — paste it as a single line:
+
+```
+python scripts/init_db.py --db ./spendops.db
+```
+
+```
+python -c "import sqlite3; conn = sqlite3.connect('spendops.db'); conn.executescript(open('mock_data.sql').read()); conn.commit(); conn.close(); print('Done')"
+```
+
+### 6. Start the app
+
+```
+uvicorn app:app --reload --port 8000
+```
+
+Open [http://localhost:8000](http://localhost:8000).
+
+### Running the pipeline manually on Windows
+
+Use semicolons instead of backslash line continuations:
+
+```
+python scripts/run_pipeline.py --department "IT/OT" --cycle FY2026 --db ./spendops.db --output-dir ./outputs/
+```
+
+### Common Windows issues
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `UnicodeDecodeError: 'charmap' codec can't decode` | Windows reads files as cp1252 by default | Already fixed in the current codebase — make sure you have the latest version |
+| `git clone` asking for credentials and failing | Stale token in Windows Credential Manager | Delete the stored `github.com` entry in Credential Manager, or just download the ZIP |
+| `sqlite3` not found | SQLite CLI is not bundled with Windows Python | Use the Python one-liner in step 5 above |
+| `uvicorn` not found | pip install didn't add scripts to PATH | Try `python -m uvicorn app:app --reload --port 8000` |
+| Port 8000 already in use | Another process is using 8000 | Change to any free port: `--port 8001` |
+
+---
+
 ## Running the Pipeline Manually
 
 The pipeline can also be run from the command line (useful for cron jobs or CI):
